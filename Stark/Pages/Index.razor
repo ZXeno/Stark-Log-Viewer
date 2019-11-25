@@ -1,0 +1,146 @@
+﻿@page "/"
+@inherits ViewComponentBase<IndexViewModel>
+@using ElectronNET.API
+@using Stark.Models
+@using Stark.Extensions
+
+<div class="container">
+    <div class="card-body borderless">
+        <div class="row">
+            <div class="col-6 col-sm-3">
+                <div class="form-group">
+                    <label>Target Server</label>
+                    <input type="text" @bind-value="this.ViewModel.TargetServer" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <div class="form-group">
+                    <label>From Date:</label>
+                    <input type="datetime" @bind-value="this.ViewModel.FilterStartDate" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-3">
+                <label>To Date:</label>
+                <input type="datetime" @bind-value="this.ViewModel.FilterEndDate" />
+            </div>
+            <div class="col-6 col-sm-3">
+                <label>Filter Text:</label>
+                <input type="text" @bind-value="this.ViewModel.FilterText" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-3">
+                <button class="btn btn-sm btn-primary" @onclick="(async () => await this.ViewModel.GetLogListAsync())">Execute</button>
+            </div>
+            <div class="col-6 col-sm-3">
+                <input class="form-check-input" type="checkbox" @bind-value="this.ViewModel.UseExternalCredentials" />
+                <label class="form-check-label">Use alternate credentials?</label>
+            </div>
+            @if (this.ViewModel.UseExternalCredentials)
+            {
+                <div class="col-6 col-sm-3">
+                    <label>Username:</label>
+                    <input type="text" @bind-value="this.ViewModel.UserName" />
+                </div>
+                <div class="col-6 col-sm-3">
+                    <label>Password</label>
+                    <input type="password" @bind-value="this.ViewModel.Password" />
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card-body borderless">
+        <div class="row border-top">
+            @if (this.ViewModel.LogModels != null)
+            {
+                <p>Result Count: @this.ViewModel.LogModels.Count</p>
+            }
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Log Type</th>
+                            <th>Source</th>
+                            <th>Event Code</th>
+                            <th class="no-align">Message</th>
+                        </tr>
+                    </thead>
+                    @if (this.ViewModel.IsLoading)
+                    {
+                        <tr>
+                            <td colspan="5" align="center">
+                                <div class="align-content-center">
+                                    <LoadingComponent />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else if (!this.ViewModel.IsLoading && this.ViewModel.LogModels != null)
+                    {
+                        foreach (var log in this.ViewModel.LogModels)
+                        {
+                            string trclass = "";
+                            switch (log.Type)
+                            {
+                                case "Error":
+                                    trclass = "table-danger";
+                                    break;
+                                case "Warning":
+                                    trclass = "table-warning";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            <tr class="@trclass border-bottom" @onclick="() => CopyLogToClipboard(log)">
+                                <td class="minwidth150 align-content-center"><span class="text-monospace logtext">@log.TimeGenerated.ToString("yyyy-MM-dd HH:MM:ss")</span></td>
+                                <td class="align-content-center"><span class="text-monospace logtext">@log.Type</span></td>
+                                <td class="minwidth200 align-content-center"><span class="text-monospace logtext">@log.SourceName</span></td>
+                                <td class="minwidth75 align-content-center"><span class="text-monospace logtext">@log.EventCode</span></td>
+                                <td><span class="text-monospace logtext">@((MarkupString)log.Message.Replace(Environment.NewLine, "<br />"))</span></td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-success copied-alert @transitionClass">
+    <span class="">Copied to clipboard!</span>
+</div>
+
+@code{
+    System.Timers.Timer copiedTextShowTimer;
+    string transitionClass = "";
+    float displayForSeconds = 3;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        this.copiedTextShowTimer = new System.Timers.Timer();
+        copiedTextShowTimer.Interval = displayForSeconds * 1000;
+        copiedTextShowTimer.Elapsed += OnCopiedTextShowTimerElapsed;
+    }
+
+    private void OnCopiedTextShowTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        copiedTextShowTimer.Stop();
+        transitionClass = "";
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void CopyLogToClipboard(LogModel log)
+    {
+        Electron.Clipboard.WriteText(log.ToJson());
+        copiedTextShowTimer.Start();
+        transitionClass = "copied-alert-active";
+    }
+}
