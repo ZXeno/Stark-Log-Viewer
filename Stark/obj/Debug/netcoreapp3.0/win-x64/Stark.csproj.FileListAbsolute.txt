@@ -376,7 +376,6 @@ C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.MvcApplicationPartsAsse
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.RazorComponent.input.cache
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\App.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\Components\LoadingComponent.razor.g.cs
-C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\Pages\Counter.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\Pages\Error.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\Pages\Index.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\RazorDeclaration\Shared\MainLayout.razor.g.cs
@@ -388,7 +387,6 @@ C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.TagHelpers.output.cache
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.RazorCoreGenerate.cache
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\App.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\Components\LoadingComponent.razor.g.cs
-C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\Pages\Counter.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\Pages\Error.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\Pages\Index.razor.g.cs
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Razor\Shared\MainLayout.razor.g.cs
@@ -405,3 +403,5 @@ C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.Views.pdb
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.csproj.CopyComplete
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.dll
 C:\dev\Stark\Stark\obj\Debug\netcoreapp3.0\win-x64\Stark.pdb
+C:\dev\Stark\Stark\bin\Debug\netcoreapp3.0\win-x64\Stark.Core.dll
+C:\dev\Stark\Stark\bin\Debug\netcoreapp3.0\win-x64\Stark.Core.pdb

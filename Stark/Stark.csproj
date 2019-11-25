@@ -9,6 +9,10 @@
     <PackageReference Include="System.Management" Version="4.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Stark.Core\Stark.Core.csproj" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Content Update="electron.manifest.json">

@@ -18,7 +18,7 @@
             this.wmi = wmi;
         }
 
-        public async Task<List<LogModel>> GetRemoteEventLogDataAsync(DateTime start, DateTime end, string serverFQDN, string messagequeryvalue, string username, string password)
+        public async Task<List<LogModel>> GetRemoteEventLogDataAsync(DateTime start, DateTime end, string serverFQDN, string messagequeryvalue, string username, string password, LogTypeEnum logType)
         {
             ConnectionOptions connops = new ConnectionOptions();
 
@@ -33,28 +33,29 @@
 
             ManagementScope remote = this.wmi.ConnectToRemoteWmi(serverFQDN, WellKnownStrings.WmiRootNamespace, connops);
 
-            return await ExecuteQuery(remote, start, end, messagequeryvalue);
+            return await ExecuteQuery(remote, start, end, messagequeryvalue, logType);
         }
 
-        public async Task<List<LogModel>> GetEventLogDataAsync(DateTime start, DateTime end, string messagequeryvalue)
+        public async Task<List<LogModel>> GetEventLogDataAsync(DateTime start, DateTime end, string messagequeryvalue, LogTypeEnum logType)
         {
             ManagementScope remote = this.wmi.ConnectToRemoteWmi(WellKnownStrings.Localhost, WellKnownStrings.WmiRootNamespace, new ConnectionOptions());
 
-            return await ExecuteQuery(remote, start, end, messagequeryvalue);
+            return await ExecuteQuery(remote, start, end, messagequeryvalue, logType);
         }
 
-        private async Task<List<LogModel>> ExecuteQuery(ManagementScope remote, DateTime start, DateTime end, string messagequeryvalue)
+        private async Task<List<LogModel>> ExecuteQuery(ManagementScope remote, DateTime start, DateTime end, string messagequeryvalue, LogTypeEnum logType)
         {
             if (remote != null)
             {
                 return await Task.Run(() =>
                 {
                     string timeBasedQuery = this.BuildTimeBasedQueryFromDates(start, end);
+                    string logfileName = this.GetLogFileName(logType);
 
-                    var query = new ObjectQuery($"SELECT * FROM Win32_NTLogEvent where (logfile='Application' and Message like '%{messagequeryvalue}%'{timeBasedQuery})");
-                    var searcher = new ManagementObjectSearcher(remote, query);
+                    ObjectQuery query = new ObjectQuery($"SELECT * FROM Win32_NTLogEvent where (logfile='{logfileName}' and Message like '%{messagequeryvalue}%'{timeBasedQuery})");
+                    ManagementObjectSearcher searcher = new ManagementObjectSearcher(remote, query);
 
-                    var querycollection = searcher.Get();
+                    ManagementObjectCollection querycollection = searcher.Get();
 
                     ConcurrentBag<LogModel> bag = new ConcurrentBag<LogModel>();
 
@@ -78,6 +79,25 @@
             {
                 return null;
             }
+        }
+
+        private string GetLogFileName(LogTypeEnum logType)
+        {
+            switch (logType)
+            {
+                case LogTypeEnum.SelectOne:
+                    throw new NotSupportedException("A log type must be selected.");
+                case LogTypeEnum.Application:
+                    return logType.ToString();
+                case LogTypeEnum.Security:
+                    return logType.ToString();
+                case LogTypeEnum.Setup:
+                    return logType.ToString();
+                case LogTypeEnum.System:
+                    return logType.ToString();
+            }
+
+            return LogTypeEnum.Application.ToString();
         }
 
         private string BuildTimeBasedQueryFromDates(DateTime start, DateTime end)

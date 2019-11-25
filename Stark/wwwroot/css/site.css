@@ -116,10 +116,6 @@ app {
     color: red;
 }
 
-.logtext {
-    font-size: .8rem;
-}
-
 @media (max-width: 767.98px) {
     .main .top-row {
         display: none;
@@ -259,6 +255,10 @@ app {
     border: none;
 }
 
+.logtext {
+    font-size: .8rem;
+}
+
 .log-table {
     font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace !important;
     border-style: hidden;
@@ -314,4 +314,28 @@ app {
 
 .copied-alert-active{
     top:0px;
+}
+
+.button-row{
+    padding-left: 15px;
+    padding-top: 8px;
+}
+
+.fixed-checkbox {
+    position: absolute;
+    margin-top: .3rem;
+    margin-left: .15rem;
+}
+
+.fixed-check-label{
+    margin-left: 1.2rem;
+}
+
+.main-actual {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
 }

@@ -4,9 +4,7 @@
     using Stark.Models;
     using Stark.MVVM;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
 
     public class IndexViewModel : ViewModelBase
@@ -21,6 +19,8 @@
         private string userName;
         private string password;
         private bool isLoading;
+        private LogTypeEnum logType;
+        private List<string> errors;
 
         public IndexViewModel(LogGrabberService loggrabber)
         {
@@ -29,6 +29,7 @@
             this.targetServer = "localhost";
             this.filterStartDate = DateTime.Now.AddDays(-7);
             this.filterEndDate = DateTime.Now;
+            this.errors = new List<string>();
         }
 
         public string TargetServer
@@ -119,23 +120,67 @@
             }
         }
 
+        public LogTypeEnum LogType
+        {
+            get => this.logType;
+            set
+            {
+                this.logType = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        public List<string> Errors
+        {
+            get => this.errors;
+            set
+            {
+                this.errors = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         public async Task GetLogListAsync()
         {
+            this.ValidateInputFields();
+
+            if (this.Errors.Count > 0)
+            {
+                return;
+            }
+
+            this.LogModels.Clear();
+
             this.IsLoading = true;
             if (this.UseExternalCredentials
                 && (!string.IsNullOrEmpty(this.TargetServer)
                 || this.TargetServer.Equals("localhost")
                 || this.targetServer.Equals("127.0.0.1")))
             {
-                this.LogModels = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password);
+                this.LogModels = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password, this.LogType);
             }
             else
             {
-                this.LogModels = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText);
+                this.LogModels = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
             }
 
             this.LogModels.Sort();
             this.IsLoading = false;
+        }
+
+        private void ValidateInputFields()
+        {
+            this.Errors.Clear();
+
+            if (string.IsNullOrEmpty(this.TargetServer))
+            {
+                Errors.Add("Target Server cannot be empty!");
+            }
+
+            if (this.LogType == LogTypeEnum.SelectOne)
+            {
+                errors.Add("You must select a Log Type to query!");
+            }
         }
     }
 }

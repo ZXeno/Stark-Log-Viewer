@@ -3,55 +3,85 @@
 @using ElectronNET.API
 @using Stark.Models
 @using Stark.Extensions
+@using Stark.DataAccessLayer
 
-<div class="container">
-    <div class="card-body borderless">
-        <div class="row">
-            <div class="col-6 col-sm-3">
-                <div class="form-group">
-                    <label>Target Server</label>
-                    <input type="text" @bind-value="this.ViewModel.TargetServer" />
-                </div>
-            </div>
-            <div class="col-6 col-sm-3">
-                <div class="form-group">
-                    <label>From Date:</label>
-                    <input type="datetime" @bind-value="this.ViewModel.FilterStartDate" />
-                </div>
-            </div>
-            <div class="col-6 col-sm-3">
-                <label>To Date:</label>
-                <input type="datetime" @bind-value="this.ViewModel.FilterEndDate" />
-            </div>
-            <div class="col-6 col-sm-3">
-                <label>Filter Text:</label>
-                <input type="text" @bind-value="this.ViewModel.FilterText" />
+@if (this.ViewModel.Errors != null
+  && this.ViewModel.Errors.Count > 0)
+{
+    <div class="container">
+        <ul class="list-group borderless">
+            @foreach (string error in this.ViewModel.Errors)
+            {
+                <li class="pd-0 list-group-item list-group-item-danger align-content-center borderless">@error</li>
+            }
+        </ul>
+    </div>
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <div class="form-group">
+                <label>Target Server</label>
+                <input class="form-control" type="text" @bind-value="this.ViewModel.TargetServer" />
             </div>
         </div>
-        <div class="row">
-            <div class="col-6 col-sm-3">
-                <button class="btn btn-sm btn-primary" @onclick="(async () => await this.ViewModel.GetLogListAsync())">Execute</button>
+        <div class="col-3">
+            <div class="form-group">
+                <label>From Date:</label>
+                <input class="form-control" type="datetime" @bind-value="this.ViewModel.FilterStartDate" />
             </div>
-            <div class="col-6 col-sm-3">
-                <input class="form-check-input" type="checkbox" @bind-value="this.ViewModel.UseExternalCredentials" />
-                <label class="form-check-label">Use alternate credentials?</label>
+        </div>
+        <div class="col-3">
+            <label>To Date:</label>
+            <input class="form-control" type="datetime" @bind-value="this.ViewModel.FilterEndDate" />
+        </div>
+        <div class="col-3">
+            <label>Log Type:</label>
+            <select class="form-control" @onchange="OnLogTypeChanged">
+                @foreach (LogTypeEnum logtype in Enum.GetValues(typeof(LogTypeEnum)).Cast<LogTypeEnum>())
+                {
+                    <option value="@logtype">@logtype.GetDisplayName()</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <label>Filter Text:</label>
+            <input class="form-control" type="text" @bind-value="this.ViewModel.FilterText" />
+        </div>
+        <div class="col-3">
+            <div class="align-content-center">
+                <input class="fixed-checkbox" type="checkbox" @bind-value="this.ViewModel.UseExternalCredentials" />
+                <label class="fixed-check-label">Use alternate credentials?</label>
             </div>
-            @if (this.ViewModel.UseExternalCredentials)
-            {
-                <div class="col-6 col-sm-3">
-                    <label>Username:</label>
-                    <input type="text" @bind-value="this.ViewModel.UserName" />
-                </div>
-                <div class="col-6 col-sm-3">
-                    <label>Password</label>
-                    <input type="password" @bind-value="this.ViewModel.Password" />
-                </div>
-            }
+        </div>
+        @if (this.ViewModel.UseExternalCredentials)
+        {
+            <div class="col-3">
+                <label>Username:</label>
+                <input class="form-control" type="text" @bind-value="this.ViewModel.UserName" />
+            </div>
+            <div class="col-3">
+                <label>Password</label>
+                <input class="form-control" type="password" @bind-value="this.ViewModel.Password" />
+            </div>
+        }
+        else
+        {
+            <div class="col-6">
+
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="button-row">
+            <button class="btn btn-sm btn-primary" @onclick="(async () => await this.ViewModel.GetLogListAsync())">Execute</button>
         </div>
     </div>
 </div>
 
-<div class="container">
+<div class="container-fluid">
     <div class="card-body borderless">
         <div class="row border-top">
             @if (this.ViewModel.LogModels != null)
@@ -118,9 +148,9 @@
 </div>
 
 @code{
-    System.Timers.Timer copiedTextShowTimer;
-    string transitionClass = "";
-    float displayForSeconds = 3;
+        System.Timers.Timer copiedTextShowTimer;
+        string transitionClass = "";
+        float displayForSeconds = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,5 +172,13 @@
         Electron.Clipboard.WriteText(log.ToJson());
         copiedTextShowTimer.Start();
         transitionClass = "copied-alert-active";
+    }
+
+    private void OnLogTypeChanged(ChangeEventArgs args)
+    {
+        if (Enum.TryParse(typeof(LogTypeEnum), args?.Value?.ToString(), out object outval))
+        {
+            this.ViewModel.LogType = (LogTypeEnum)outval;
+        }
     }
 }
