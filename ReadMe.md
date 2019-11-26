@@ -2,11 +2,20 @@
 
 Stark Log Viewer was birthed from a deep dissatisfaction with existing log viewers that were freely available and not tied into an existing solution or product on the market. This open-source viewer is inteded to be simple and fast, with a minimalist feature set, but powerful enough to sort and read Windows event logs quickly. No bloatware, open-source, and using a tech stack you probably won't expect.
 
-### More to come
-There's more in the works, but a firm roadmap hasn't been created yet. It's very simple, quickly thrown together, and still a bit messy at the moment, but active development is on-going!
+### Roadmap
+There's more in the works, but a firm roadmap hasn't been created yet. As of right now it's very simple, quickly thrown together, and still a bit messy at the moment. However, active development is on-going. There are some features planned that are in the works.
+
+Planned features:
+  * Sort by column contents
+  * Filter by each column type
+  * Save to CSV, Plaintext, or JSON format
+  * Copy more than one log to clipboard at a time.
+  * Dark Mode
 
 ### Contribution
-If you find any issues, please open an issue in the tracker. If you would like to contribute code, please submit a pull request!
+If you find any issues, please open an issue in the tracker. If you would like to contribute code, please fork the project and submit a pull request!
+
+Currently, things that this project needs that are not in th feature list but need to be done: tests, startup performance improvements, documentation, and someone with a sense for UI style.
 
 ##### Setting Up The Dev Environment
 First, you'll need to set up [Electron.NET](https://github.com/ElectronNET/Electron.NET).
