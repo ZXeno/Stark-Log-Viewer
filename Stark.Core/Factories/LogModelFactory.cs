@@ -19,7 +19,7 @@
                 InsertionStrings = mbo["InsertionStrings"]?.ToString(),
                 Logfile = mbo["Logfile"]?.ToString(),
                 Message = mbo["Message"]?.ToString(),
-                RecordNumber = mbo["Message"]?.ToString(),
+                RecordNumber = mbo["RecordNumber"]?.ToString(),
                 SourceName = mbo["SourceName"]?.ToString(),
                 TimeGenerated = ManagementDateTimeConverter.ToDateTime(mbo["TimeGenerated"]?.ToString()),
                 TimeWritten = ManagementDateTimeConverter.ToDateTime(mbo["TimeWritten"]?.ToString()),
