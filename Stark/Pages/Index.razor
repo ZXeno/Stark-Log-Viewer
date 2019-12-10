@@ -133,7 +133,7 @@
                                 <td class="align-content-center"><span class="text-monospace logtext">@log.Type</span></td>
                                 <td class="minwidth200 align-content-center"><span class="text-monospace logtext">@log.SourceName</span></td>
                                 <td class="minwidth75 align-content-center"><span class="text-monospace logtext">@log.EventCode</span></td>
-                                <td><span class="text-monospace logtext">@((MarkupString)log.Message.Replace(Environment.NewLine, "<br />"))</span></td>
+                                <td><span class="text-monospace logtext">@((MarkupString)this.FormatLogMessage(log.Message))</span></td>
                             </tr>
                         }
                     }
@@ -148,9 +148,11 @@
 </div>
 
 @code{
-        System.Timers.Timer copiedTextShowTimer;
-        string transitionClass = "";
-        float displayForSeconds = 3;
+    const string HtmlBreak = "<br />";
+
+    System.Timers.Timer copiedTextShowTimer;
+    string transitionClass = "";
+    float displayForSeconds = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -180,5 +182,18 @@
         {
             this.ViewModel.LogType = (LogTypeEnum)outval;
         }
+    }
+
+    private string FormatLogMessage(string message)
+    {
+        // Not all new line characters are captured with a simple replace of Environment.NewLine,
+        // so we check them all and replace them with HTML breaks. If this produces bad results,
+        // we'll come up with a smarter way to parse. This should cover all relevant cases
+        // in the meantime though.
+        return message
+            .Replace(Environment.NewLine, HtmlBreak)
+            .Replace("\r\n", HtmlBreak)
+            .Replace("\r", HtmlBreak)
+            .Replace("\n", HtmlBreak);
     }
 }

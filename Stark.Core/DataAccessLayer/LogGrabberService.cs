@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Management;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     public class LogGrabberService
@@ -45,6 +46,8 @@
 
         private async Task<List<LogModel>> ExecuteQuery(ManagementScope remote, DateTime start, DateTime end, string messagequeryvalue, LogTypeEnum logType)
         {
+            string escapedMessageQueryParameter = Regex.Replace(messagequeryvalue, "([\\\\''\"])", @"\$1");
+
             if (remote != null)
             {
                 return await Task.Run(() =>
@@ -52,7 +55,7 @@
                     string timeBasedQuery = this.BuildTimeBasedQueryFromDates(start, end);
                     string logfileName = this.GetLogFileName(logType);
 
-                    ObjectQuery query = new ObjectQuery($"SELECT * FROM Win32_NTLogEvent where (logfile='{logfileName}' and Message like '%{messagequeryvalue}%'{timeBasedQuery})");
+                    ObjectQuery query = new ObjectQuery($"SELECT * FROM Win32_NTLogEvent where (logfile='{logfileName}' and Message like '%{escapedMessageQueryParameter}%'{timeBasedQuery})");
                     ManagementObjectSearcher searcher = new ManagementObjectSearcher(remote, query);
 
                     ManagementObjectCollection querycollection = searcher.Get();

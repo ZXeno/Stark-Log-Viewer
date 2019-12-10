@@ -150,21 +150,29 @@
             }
 
             this.LogModels.Clear();
-
             this.IsLoading = true;
-            if (this.UseExternalCredentials
-                && (!string.IsNullOrEmpty(this.TargetServer)
-                || this.TargetServer.Equals("localhost")
-                || this.targetServer.Equals("127.0.0.1")))
+
+            try
             {
-                this.LogModels = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password, this.LogType);
+                if (this.UseExternalCredentials
+                    && (!string.IsNullOrEmpty(this.TargetServer)
+                    || this.TargetServer.Equals("localhost")
+                    || this.targetServer.Equals("127.0.0.1")))
+                {
+                    this.LogModels = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password, this.LogType);
+                }
+                else
+                {
+                    this.LogModels = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
+                }
+
+                this.LogModels.Sort();
             }
-            else
+            catch (Exception ex)
             {
-                this.LogModels = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
+                this.Errors.Add($"An error was thrown while searching: {ex.Message}");
             }
 
-            this.LogModels.Sort();
             this.IsLoading = false;
         }
 

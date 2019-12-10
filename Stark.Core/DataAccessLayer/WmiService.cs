@@ -18,6 +18,7 @@
             {
                 var wmiscope = new ManagementScope($"\\\\{hostname}{scope}", options);
                 wmiscope.Connect();
+
                 return wmiscope;
             }
             catch (Exception e)
