@@ -1,7 +1,6 @@
 ﻿@page "/"
 @inherits ViewComponentBase<IndexViewModel>
 @using ElectronNET.API
-@using Stark.Models
 @using Stark.Extensions
 @using Stark.DataAccessLayer
 
@@ -84,9 +83,9 @@
 <div class="container-fluid">
     <div class="card-body borderless">
         <div class="row border-top">
-            @if (this.ViewModel.LogModels != null)
+            @if (this.ViewModel.LogViewModels != null)
             {
-                <p>Result Count: @this.ViewModel.LogModels.Count</p>
+                <p>Result Count: @this.ViewModel.LogViewModels.Count</p>
             }
         </div>
         <div class="row">
@@ -111,9 +110,9 @@
                             </td>
                         </tr>
                     }
-                    else if (!this.ViewModel.IsLoading && this.ViewModel.LogModels != null)
+                    else if (!this.ViewModel.IsLoading && this.ViewModel.LogViewModels != null)
                     {
-                        foreach (var log in this.ViewModel.LogModels)
+                        foreach (var log in this.ViewModel.LogViewModels)
                         {
                             string trclass = "";
                             switch (log.Type)
@@ -128,12 +127,28 @@
                                     break;
                             }
 
-                            <tr class="@trclass border-bottom" @onclick="() => CopyLogToClipboard(log)">
+                            <tr class="@trclass border-bottom" @onclick="(e) => CopyLogToClipboard(e, log)">
                                 <td class="minwidth150 align-content-center"><span class="text-monospace logtext">@log.TimeGenerated.ToString("yyyy-MM-dd HH:MM:ss")</span></td>
                                 <td class="align-content-center"><span class="text-monospace logtext">@log.Type</span></td>
                                 <td class="minwidth200 align-content-center"><span class="text-monospace logtext">@log.SourceName</span></td>
                                 <td class="minwidth75 align-content-center"><span class="text-monospace logtext">@log.EventCode</span></td>
-                                <td><span class="text-monospace logtext">@((MarkupString)this.FormatLogMessage(log.Message))</span></td>
+                                <td><span class="text-monospace logtext">
+                                        @((MarkupString)this.FormatLogMessage(log.GetMessageString()))
+                                        @{
+                                            if (log.ShowReadMoreAndLessButtons)
+                                            {
+                                                if (log.ShowReadMoreText)
+                                                {
+                                                    <button class="btn btn-sm btn-link" @onclick="(() => { log.ShowReadMoreText = !log.ShowReadMoreText; StateHasChanged(); })" @onclick:stopPropagation="true">[Read More]</button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-link" @onclick="(() => { log.ShowReadMoreText = !log.ShowReadMoreText; StateHasChanged(); })" @onclick:stopPropagation="true">[Read Less]</button>
+                                                }
+                                            }
+                                        }
+                                    </span>
+                                </td>
                             </tr>
                         }
                     }
@@ -149,6 +164,7 @@
 
 @code{
     const string HtmlBreak = "<br />";
+    const int ShortenedMessageLength = 100;
 
     System.Timers.Timer copiedTextShowTimer;
     string transitionClass = "";
@@ -169,9 +185,14 @@
         InvokeAsync(StateHasChanged);
     }
 
-    public void CopyLogToClipboard(LogModel log)
+    public void CopyLogToClipboard(MouseEventArgs e, LogViewModel log)
     {
-        Electron.Clipboard.WriteText(log.ToJson());
+        if (e.Button != 0)
+        {
+            return;
+        }
+
+        Electron.Clipboard.WriteText(log.LogModel.ToJson());
         copiedTextShowTimer.Start();
         transitionClass = "copied-alert-active";
     }

@@ -10,7 +10,7 @@
     public class IndexViewModel : ViewModelBase
     {
         private readonly LogGrabberService loggrabber;
-        private List<LogModel> logModels;
+        private List<LogViewModel> logViewModels;
         private string targetServer;
         private string filterText;
         private DateTime filterStartDate;
@@ -25,7 +25,7 @@
         public IndexViewModel(LogGrabberService loggrabber)
         {
             this.loggrabber = loggrabber;
-            this.logModels = new List<LogModel>();
+            this.logViewModels = new List<LogViewModel>();
             this.targetServer = "localhost";
             this.filterStartDate = DateTime.Now.AddDays(-7);
             this.filterEndDate = DateTime.Now;
@@ -100,12 +100,12 @@
             }
         }
 
-        public List<LogModel> LogModels
+        public List<LogViewModel> LogViewModels
         {
-            get => this.logModels;
+            get => this.logViewModels;
             set
             {
-                this.logModels = value;
+                this.logViewModels = value;
                 this.OnPropertyChanged();
             }
         }
@@ -149,8 +149,9 @@
                 return;
             }
 
-            this.LogModels.Clear();
+            this.LogViewModels.Clear();
             this.IsLoading = true;
+            List<LogModel> collectedLogs = new List<LogModel>();
 
             try
             {
@@ -159,14 +160,22 @@
                     || this.TargetServer.Equals("localhost")
                     || this.targetServer.Equals("127.0.0.1")))
                 {
-                    this.LogModels = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password, this.LogType);
+                    collectedLogs = await this.loggrabber.GetRemoteEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.TargetServer, this.FilterText, this.UserName, this.Password, this.LogType);
                 }
                 else
                 {
-                    this.LogModels = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
+                    collectedLogs = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
                 }
 
-                this.LogModels.Sort();
+                if (collectedLogs.Count > 0)
+                {
+                    foreach (LogModel log in collectedLogs)
+                    {
+                        this.LogViewModels.Add(new LogViewModel(log));
+                    }
+                }
+
+                this.LogViewModels.Sort((x, y) => x.TimeGenerated.CompareTo(y.TimeGenerated));
             }
             catch (Exception ex)
             {
@@ -187,7 +196,20 @@
 
             if (this.LogType == LogTypeEnum.SelectOne)
             {
-                errors.Add("You must select a Log Type to query!");
+                Errors.Add("You must select a Log Type to query!");
+            }
+
+            if (this.UseExternalCredentials)
+            {
+                if (string.IsNullOrEmpty(this.UserName))
+                {
+                    Errors.Add("You must provide a username!");
+                }
+
+                if (string.IsNullOrEmpty(this.Password))
+                {
+                    Errors.Add("Password cannot be blank!");
+                }
             }
         }
     }
