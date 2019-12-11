@@ -3,6 +3,7 @@
 @using ElectronNET.API
 @using Stark.Extensions
 @using Stark.DataAccessLayer
+@using Stark.Models
 
 @if (this.ViewModel.Errors != null
   && this.ViewModel.Errors.Count > 0)
@@ -93,11 +94,11 @@
                 <table class="log-table">
                     <thead>
                         <tr>
-                            <th>Date/Time</th>
-                            <th>Log Type</th>
-                            <th>Source</th>
-                            <th>Event Code</th>
-                            <th class="no-align">Message</th>
+                            <th>Date/Time @if (this.ViewModel.LogViewModels.Count > 0) {<button class="btn btn-sm" @onclick="(async () => await this.SortColumn(nameof(LogModel.TimeGenerated)))"><i class="@(GetCurrentSortClassForColumn(nameof(LogModel.TimeGenerated)))"></i></button>}</th>
+                            <th>Log Type @if (this.ViewModel.LogViewModels.Count > 0) {<button class="btn btn-sm" @onclick="(async () => await this.SortColumn(nameof(LogModel.Type)))"><i class="@(GetCurrentSortClassForColumn(nameof(LogModel.Type)))"></i></button>}</th>
+                            <th>Source @if (this.ViewModel.LogViewModels.Count > 0) {<button class="btn btn-sm" @onclick="(async () => await this.SortColumn(nameof(LogModel.SourceName)))"><i class="@(GetCurrentSortClassForColumn(nameof(LogModel.SourceName)))"></i></button>}</th>
+                            <th>Event Code @if (this.ViewModel.LogViewModels.Count > 0) {<button class="btn btn-sm" @onclick="(async () => await this.SortColumn(nameof(LogModel.EventCode)))"><i class="@(GetCurrentSortClassForColumn(nameof(LogModel.EventCode)))"></i></button>}</th>
+                            <th class="no-align">Message @if (this.ViewModel.LogViewModels.Count > 0) {<button class="btn btn-sm" @onclick="(async () => await this.SortColumn(nameof(LogModel.Message)))"><i class="@(GetCurrentSortClassForColumn(nameof(LogModel.Message)))"></i></button>}</th>
                         </tr>
                     </thead>
                     @if (this.ViewModel.IsLoading)
@@ -129,10 +130,10 @@
 
                             <tr class="@trclass border-bottom" @onclick="(e) => CopyLogToClipboard(e, log)">
                                 <td class="minwidth150 align-content-center"><span class="text-monospace logtext">@log.TimeGenerated.ToString("yyyy-MM-dd HH:MM:ss")</span></td>
-                                <td class="align-content-center"><span class="text-monospace logtext">@log.Type</span></td>
+                                <td class="minwidth150 align-content-center"><span class="text-monospace logtext">@log.Type</span></td>
                                 <td class="minwidth200 align-content-center"><span class="text-monospace logtext">@log.SourceName</span></td>
-                                <td class="minwidth75 align-content-center"><span class="text-monospace logtext">@log.EventCode</span></td>
-                                <td><span class="text-monospace logtext">
+                                <td class="minwidth150 align-content-center"><span class="text-monospace logtext">@log.EventCode</span></td>
+                                <td><span class="text-monospace logtext" @onclick:stopPropagation="true">
                                         @((MarkupString)this.FormatLogMessage(log.GetMessageString()))
                                         @{
                                             if (log.ShowReadMoreAndLessButtons)
@@ -165,6 +166,8 @@
 @code{
     const string HtmlBreak = "<br />";
     const int ShortenedMessageLength = 100;
+    const string sortDown = "-down";
+    const string sortUp = "-up";
 
     System.Timers.Timer copiedTextShowTimer;
     string transitionClass = "";
@@ -216,5 +219,22 @@
             .Replace("\r\n", HtmlBreak)
             .Replace("\r", HtmlBreak)
             .Replace("\n", HtmlBreak);
+    }
+
+    private async Task SortColumn(string property)
+    {
+        await this.ViewModel.SortByProperty(property);
+    }
+
+    private string GetCurrentSortClassForColumn(string property)
+    {
+        string classString = "fas fa-sort";
+
+        if (this.ViewModel.CurrentSortProperty?.Equals(property, StringComparison.InvariantCultureIgnoreCase) ?? false)
+        {
+            classString += (this.ViewModel.SortDirectionDown) ? "-down" : "-up";
+        }
+
+        return classString;
     }
 }

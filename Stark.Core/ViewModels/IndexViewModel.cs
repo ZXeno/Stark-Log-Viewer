@@ -21,6 +21,8 @@
         private bool isLoading;
         private LogTypeEnum logType;
         private List<string> errors;
+        private string currentSortProperty;
+        private bool sortDirectionDown = true;
 
         public IndexViewModel(LogGrabberService loggrabber)
         {
@@ -140,6 +142,26 @@
             }
         }
 
+        public string CurrentSortProperty
+        {
+            get => this.currentSortProperty;
+            set
+            {
+                this.currentSortProperty = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        public bool SortDirectionDown
+        {
+            get => this.sortDirectionDown;
+            set
+            {
+                this.sortDirectionDown = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         public async Task GetLogListAsync()
         {
             this.ValidateInputFields();
@@ -175,7 +197,7 @@
                     }
                 }
 
-                this.LogViewModels.Sort((x, y) => x.TimeGenerated.CompareTo(y.TimeGenerated));
+                await this.SortByProperty(this.CurrentSortProperty, true);
             }
             catch (Exception ex)
             {
@@ -183,6 +205,89 @@
             }
 
             this.IsLoading = false;
+        }
+
+        public async Task SortByProperty(string propertyName, bool ignoreToggle = false)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return;
+            }
+
+            string prevSortProperty = this.CurrentSortProperty;
+            this.CurrentSortProperty = propertyName;
+
+            if (!ignoreToggle && this.CurrentSortProperty.Equals(prevSortProperty, StringComparison.InvariantCultureIgnoreCase))
+            {
+                this.SortDirectionDown = !this.SortDirectionDown;
+            }
+
+            this.IsLoading = true;
+            await Task.Run(() =>
+            {
+                lock (this.LogViewModels)
+                {
+                    switch (this.CurrentSortProperty)
+                    {
+                        case nameof(LogModel.TimeGenerated):
+                            if (this.sortDirectionDown)
+                            {
+                                this.LogViewModels.Sort((x, y) => x.TimeGenerated.CompareTo(y.TimeGenerated));
+                            }
+                            else
+                            {
+                                this.LogViewModels.Sort((x, y) => y.TimeGenerated.CompareTo(x.TimeGenerated));
+                            }
+                            break;
+                        case nameof(LogModel.Type):
+                            if (this.sortDirectionDown)
+                            {
+                                this.LogViewModels.Sort((x, y) => x.Type.CompareTo(y.Type));
+                            }
+                            else
+                            {
+                                this.LogViewModels.Sort((x, y) => y.Type.CompareTo(x.Type));
+                            }
+                            break;
+                        case nameof(LogModel.SourceName):
+                            if (this.sortDirectionDown)
+                            {
+                                this.LogViewModels.Sort((x, y) => x.SourceName.CompareTo(y.SourceName));
+                            }
+                            else
+                            {
+                                this.LogViewModels.Sort((x, y) => y.SourceName.CompareTo(x.SourceName));
+                            }
+                            break;
+                        case nameof(LogModel.EventCode):
+                            if (this.sortDirectionDown)
+                            {
+                                this.LogViewModels.Sort((x, y) => x.EventCode.CompareTo(y.EventCode));
+                            }
+                            else
+                            {
+                                this.LogViewModels.Sort((x, y) => y.EventCode.CompareTo(x.EventCode));
+                            }
+                            break;
+                        case nameof(LogModel.Message):
+                            if (this.sortDirectionDown)
+                            {
+                                this.LogViewModels.Sort((x, y) => x.Message.CompareTo(y.Message));
+                            }
+                            else
+                            {
+                                this.LogViewModels.Sort((x, y) => y.Message.CompareTo(x.Message));
+                            }
+                            break;
+                        default:
+                            this.LogViewModels.Sort((x, y) => y.TimeGenerated.CompareTo(x.TimeGenerated));
+                            break;
+                    }
+                }
+
+                this.IsLoading = false;
+                this.OnPropertyChanged(nameof(this.LogViewModels));
+            });
         }
 
         private void ValidateInputFields()
