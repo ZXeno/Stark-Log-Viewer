@@ -46,6 +46,11 @@
 
         private async Task<List<LogModel>> ExecuteQuery(ManagementScope remote, DateTime start, DateTime end, string messagequeryvalue, LogTypeEnum logType)
         {
+            if (messagequeryvalue == null)
+            {
+                messagequeryvalue = string.Empty;
+            }
+
             string escapedMessageQueryParameter = Regex.Replace(messagequeryvalue, "([\\\\''\"])", @"\$1");
 
             if (remote != null)
