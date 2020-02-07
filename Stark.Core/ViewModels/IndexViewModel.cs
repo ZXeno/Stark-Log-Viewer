@@ -168,7 +168,7 @@
 
             if (this.Errors.Count > 0)
             {
-                return;
+                this.Errors.Clear();
             }
 
             this.LogViewModels.Clear();
@@ -189,7 +189,7 @@
                     collectedLogs = await this.loggrabber.GetEventLogDataAsync(this.FilterStartDate, this.FilterEndDate, this.FilterText, this.LogType);
                 }
 
-                if (collectedLogs.Count > 0)
+                if (collectedLogs?.Count > 0)
                 {
                     foreach (LogModel log in collectedLogs)
                     {

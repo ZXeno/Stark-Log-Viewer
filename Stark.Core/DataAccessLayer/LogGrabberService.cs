@@ -22,6 +22,7 @@
         public async Task<List<LogModel>> GetRemoteEventLogDataAsync(DateTime start, DateTime end, string serverFQDN, string messagequeryvalue, string username, string password, LogTypeEnum logType)
         {
             ConnectionOptions connops = new ConnectionOptions();
+            ManagementScope remote = null;
 
             if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
@@ -32,9 +33,22 @@
                 };
             }
 
-            ManagementScope remote = this.wmi.ConnectToRemoteWmi(serverFQDN, WellKnownStrings.WmiRootNamespace, connops);
+            try
+            {
+                remote = this.wmi.ConnectToRemoteWmi(serverFQDN, WellKnownStrings.WmiRootNamespace, connops);
+            }
+            catch (UnauthorizedAccessException uae)
+            {
+                throw uae;
+            }
+            catch (Exception ex)
+            {
+                throw new AccessViolationException($"Unable to connect to remote namespace: {ex.Message}", ex);
+            }
 
-            return await ExecuteQuery(remote, start, end, messagequeryvalue, logType);
+            List<LogModel> results = await ExecuteQuery(remote, start, end, messagequeryvalue, logType);
+
+            return results;
         }
 
         public async Task<List<LogModel>> GetEventLogDataAsync(DateTime start, DateTime end, string messagequeryvalue, LogTypeEnum logType)
