@@ -3,7 +3,7 @@
     using System;
     using System.Management;
 
-    public class WmiService
+    public class WmiService : IWmiService
     {
         // TODO: Logging
 

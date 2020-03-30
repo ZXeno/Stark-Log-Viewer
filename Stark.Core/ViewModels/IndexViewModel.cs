@@ -9,7 +9,8 @@
 
     public class IndexViewModel : ViewModelBase
     {
-        private readonly LogGrabberService loggrabber;
+        private readonly ILogGrabberService loggrabber;
+        private readonly IFileService fileService;
         private List<LogViewModel> logViewModels;
         private string targetServer;
         private string filterText;
@@ -24,9 +25,10 @@
         private string currentSortProperty;
         private bool sortDirectionDown = true;
 
-        public IndexViewModel(LogGrabberService loggrabber)
+        public IndexViewModel(ILogGrabberService loggrabber, IFileService fileService)
         {
             this.loggrabber = loggrabber;
+            this.fileService = fileService;
             this.logViewModels = new List<LogViewModel>();
             this.targetServer = "localhost";
             this.filterStartDate = DateTime.Now.AddDays(-7);
@@ -316,6 +318,17 @@
                     Errors.Add("Password cannot be blank!");
                 }
             }
+        }
+
+        public async Task ExportResultsAsync(string targetPath)
+        {
+            if (string.IsNullOrWhiteSpace(targetPath))
+            {
+                this.Errors.Add("Cannot save to empty or null location.");
+                return;
+            }
+
+            // TODO: process results into specified file format and write to disk.
         }
     }
 }

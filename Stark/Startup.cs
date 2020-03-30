@@ -31,8 +31,11 @@ namespace Stark
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddTransient<WmiService>();
-            services.AddTransient<LogGrabberService>();
+            services.AddTransient<IWmiService, WmiService>();
+            services.AddTransient<IFileService, FileService>();
+            services.AddTransient<ILogGrabberService, LogGrabberService>();
+
+            // Register ViewModels
             services.AddTransient<IndexViewModel>();
         }
 

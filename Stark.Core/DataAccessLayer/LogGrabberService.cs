@@ -10,11 +10,11 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    public class LogGrabberService
+    public class LogGrabberService : ILogGrabberService
     {
-        private readonly WmiService wmi;
+        private readonly IWmiService wmi;
 
-        public LogGrabberService(WmiService wmi)
+        public LogGrabberService(IWmiService wmi)
         {
             this.wmi = wmi;
         }

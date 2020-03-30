@@ -1,4 +1,4 @@
-﻿namespace Stark.DataAccessLayer
+﻿namespace Stark
 {
     using System.ComponentModel.DataAnnotations;
 

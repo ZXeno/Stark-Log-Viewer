@@ -2,7 +2,6 @@
 @inherits ViewComponentBase<IndexViewModel>
 @using ElectronNET.API
 @using Stark.Extensions
-@using Stark.DataAccessLayer
 @using Stark.Models
 
 @if (this.ViewModel.Errors != null
@@ -77,6 +76,10 @@
     <div class="row">
         <div class="button-row">
             <button class="btn btn-sm btn-primary" @onclick="(async () => await this.ViewModel.GetLogListAsync())">Execute</button>
+            @if (this.ViewModel.LogViewModels?.Count > 0)
+            {
+                <button class="btn btn-sm btn-primary" @onclick="(async () => await this.OpenSaveDialogAsync())">Export Results</button>
+            }
         </div>
     </div>
 </div>
@@ -236,5 +239,26 @@
         }
 
         return classString;
+    }
+
+    private async Task OpenSaveDialogAsync()
+    {
+        SaveDialogOptions options = new SaveDialogOptions
+        {
+            Title = "Export results as JSON",
+            Filters = new ElectronNET.API.Entities.FileFilter[]
+            {
+                new ElectronNET.API.Entities.FileFilter { Name = "JSON", Extensions = new string[] {"json" } },
+                new ElectronNET.API.Entities.FileFilter { Name = "Text", Extensions = new string[] {"txt" } }
+            },
+            DefaultPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+        };
+
+        string targetpath = await Electron.Dialog.ShowSaveDialogAsync(Electron.WindowManager.BrowserWindows.First(), options);
+
+        if (!string.IsNullOrWhiteSpace(targetpath))
+        {
+            await this.ViewModel.ExportResultsAsync(targetpath);
+        }
     }
 }
