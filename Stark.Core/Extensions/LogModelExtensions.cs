@@ -37,7 +37,7 @@
         /// </summary>
         /// <param name="logs">The <see cref="List{LogModel}"/> collection to convert.</param>
         /// <returns>JSON formatted string.</returns>
-        public static string ToJson(this List<LogModel> logs)
+        public static string ToJson(this IEnumerable<LogModel> logs)
         {
             if (logs == null)
             {
@@ -53,14 +53,14 @@
         /// <param name="logs">The <see cref="List{LogModel}"/> collection to convert.</param>
         /// <param name="prettyPrint">Flag determining whether to use pretty print JSON.</param>
         /// <returns></returns>
-        public static string ToJson(this List<LogModel> logs, bool prettyPrint)
+        public static string ToJson(this IEnumerable<LogModel> logs, bool prettyPrint)
         {
             if (logs == null)
             {
                 return "{ }";
             }
 
-            return JsonSerializer.Serialize<List<LogModel>>(logs, new JsonSerializerOptions() { WriteIndented = prettyPrint });
+            return JsonSerializer.Serialize<IEnumerable<LogModel>>(logs, new JsonSerializerOptions() { WriteIndented = prettyPrint });
         }
     }
 }

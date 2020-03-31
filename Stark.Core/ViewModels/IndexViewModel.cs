@@ -5,6 +5,9 @@
     using Stark.MVVM;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
     public class IndexViewModel : ViewModelBase
@@ -328,7 +331,10 @@
                 return;
             }
 
-            // TODO: process results into specified file format and write to disk.
+            string filename = targetPath.Substring(targetPath.LastIndexOf('\\') + 1);
+            string targetDirectory = targetPath.Substring(0, targetPath.LastIndexOf('\\'));
+            string fileContents = await LogFormatter.FormatLogsByExtensionAsync(filename.Substring(filename.LastIndexOf('.') + 1), this.LogViewModels);
+            await this.fileService.WriteTextToFileAsync(targetDirectory, filename, fileContents);
         }
     }
 }

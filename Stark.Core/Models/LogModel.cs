@@ -41,5 +41,52 @@
         {
             return "{" + this.Logfile + "," + this.TimeGenerated + "," + this.Type + "," + this.SourceName + "," + this.Message + this.EventCode + "}";
         }
+
+        /// <summary>
+        /// Returns the entire log formatted as a string. "f" for Full "b" for brief.
+        /// </summary>
+        /// <returns>The log formatted as a string as defined by format</returns>
+        public string ToString(string format)
+        {
+            switch(format)
+            {
+                case "f":
+                    return this.VerboseFormat();
+                case "b":
+                    return this.BriefFormat();
+                default:
+                    return this.ToString();
+            }
+        }
+
+        private string VerboseFormat()
+        {
+            return "Categrory: " + this.Category + Environment.NewLine +
+                   "CategoryString: " + this.CategoryString + Environment.NewLine +
+                   "ComputerName: " + this.ComputerName + Environment.NewLine +
+                   "Data: " + this.Data + Environment.NewLine +
+                   "EventCode: " + this.EventCode + Environment.NewLine +
+                   "EventIdentifier: " + this.EventIdentifier + Environment.NewLine +
+                   "EventType: " + this.EventType + Environment.NewLine +
+                   "InsertionStrings: " + this.InsertionStrings + Environment.NewLine +
+                   "Logfile: " + this.Logfile + Environment.NewLine +
+                   "Message: " + this.Message + Environment.NewLine +
+                   "RecordNumber: " + this.RecordNumber + Environment.NewLine +
+                   "SourceName: " + this.SourceName + Environment.NewLine +
+                   "TimeGenerated: " + this.TimeGenerated + Environment.NewLine +
+                   "TimeWritten: " + this.TimeWritten + Environment.NewLine +
+                   "Type: " + this.Type + Environment.NewLine +
+                   "User: " + this.User;
+        }
+
+        private string BriefFormat()
+        {
+            return "Logfile: " + this.Logfile + Environment.NewLine +
+                   "TimeGenerated: " + this.TimeGenerated + Environment.NewLine +
+                   "Type: " + this.Type + Environment.NewLine +
+                   "SourceName: " + this.SourceName + Environment.NewLine +
+                   "Message: " + this.Message + Environment.NewLine +
+                   "EventCode: " + this.EventCode;
+        }
     }
 }
